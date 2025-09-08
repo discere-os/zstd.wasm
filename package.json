@@ -1,0 +1,50 @@
+{
+  "name": "@superstruct/zstd.wasm",
+  "version": "1.5.6",
+  "type": "module",
+  "description": "Zstandard compression library compiled to WebAssembly",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/",
+    "lib/",
+    "wasm/"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./wasm": {
+      "import": "./dist/wasm-loader.js"
+    }
+  },
+  "scripts": {
+    "build": "./build-wasm.sh release && ./build-wasm.sh simd && ./build-wasm.sh fallback",
+    "build:release": "./build-wasm.sh release",
+    "build:simd": "./build-wasm.sh simd",
+    "build:fallback": "./build-wasm.sh fallback",
+    "build:lib": "cd lib && emmake make libzstd.a ZSTD_LIB_COMPRESSION=1 ZSTD_LIB_DECOMPRESSION=1 ZSTD_LIB_DICTBUILDER=0 ZSTD_LEGACY_SUPPORT=0 CFLAGS='-O3 -DXXH_VECTOR=XXH_SCALAR'",
+    "test": "node test/performance_test.js",
+    "dev": "python3 -m http.server 3000"
+  },
+  "keywords": [
+    "zstd",
+    "zstandard", 
+    "compression",
+    "wasm",
+    "webassembly",
+    "decompression",
+    "superstruct"
+  ],
+  "author": "Superstruct Ltd",
+  "license": "BSD-3-Clause",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/superstruct/zstd.wasm.git"
+  },
+  "homepage": "https://github.com/superstruct/zstd.wasm",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  }
+}
