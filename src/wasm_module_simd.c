@@ -235,10 +235,30 @@ int zstd_compress_buffer(const char* input, int input_len, char* output, unsigne
         ZSTD_CCtx* cctx = ZSTD_createCCtx();
         if (!cctx) return -1;
         
-        // Configure for SIMD-friendly operation
+        // Advanced parameter tuning for maximum performance
         ZSTD_CCtx_setParameter(cctx, ZSTD_c_compressionLevel, compression_level);
         ZSTD_CCtx_setParameter(cctx, ZSTD_c_enableLongDistanceMatching, 1);
-        ZSTD_CCtx_setParameter(cctx, ZSTD_c_windowLog, 26); // 64MB window for better matching
+        
+        // Optimize parameters based on compression level
+        if (compression_level <= 3) {
+            ZSTD_CCtx_setParameter(cctx, ZSTD_c_windowLog, 20);        // 1MB window for speed
+            ZSTD_CCtx_setParameter(cctx, ZSTD_c_hashLog, 20);         // Smaller hash for speed
+            ZSTD_CCtx_setParameter(cctx, ZSTD_c_chainLog, 15);        // Shorter chains
+            ZSTD_CCtx_setParameter(cctx, ZSTD_c_searchLog, 3);        // Fewer searches
+            ZSTD_CCtx_setParameter(cctx, ZSTD_c_strategy, ZSTD_fast); // Fast strategy
+        } else if (compression_level <= 9) {
+            ZSTD_CCtx_setParameter(cctx, ZSTD_c_windowLog, 24);       // 16MB window 
+            ZSTD_CCtx_setParameter(cctx, ZSTD_c_hashLog, 22);        // Balanced hash
+            ZSTD_CCtx_setParameter(cctx, ZSTD_c_strategy, ZSTD_dfast); // Double-fast
+        } else {
+            ZSTD_CCtx_setParameter(cctx, ZSTD_c_windowLog, 27);       // 128MB window
+            ZSTD_CCtx_setParameter(cctx, ZSTD_c_strategy, ZSTD_btultra2); // Ultra strategy
+        }
+        
+        // WebAssembly-specific optimizations
+        ZSTD_CCtx_setParameter(cctx, ZSTD_c_nbWorkers, 1);          // Single-threaded
+        ZSTD_CCtx_setParameter(cctx, ZSTD_c_checksumFlag, 0);      // Disable checksums for speed
+        ZSTD_CCtx_setParameter(cctx, ZSTD_c_contentSizeFlag, 1);   // Include content size
         
         result = ZSTD_compress2(cctx, output, *output_len, input, input_len);
         ZSTD_freeCCtx(cctx);

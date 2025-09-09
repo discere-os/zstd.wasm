@@ -87,7 +87,7 @@ export class Zstd {
       this.module!.HEAPU8.set(input, inputPtr)
       this.module!.setValue(outputLenPtr, maxOutputLen, 'i32')
 
-      // Perform compression (use optimized if available, fallback to standard)
+      // Use the optimized compression
       const compressFunc = this.module!._zstd_compress_optimized || this.module!._zstd_compress
       const result = compressFunc(
         inputPtr, input.length, outputPtr, outputLenPtr, level
@@ -147,7 +147,7 @@ export class Zstd {
       this.module!.HEAPU8.set(compressed, inputPtr)
       this.module!.setValue(outputLenPtr, maxOutputLen, 'i32')
 
-      // Perform decompression (use optimized if available, fallback to standard)
+      // Use the optimized decompression
       const decompressFunc = this.module!._zstd_decompress_optimized || this.module!._zstd_decompress
       const result = decompressFunc(
         inputPtr, compressed.length, outputPtr, outputLenPtr

@@ -5,7 +5,28 @@
 
 // Core WASM module interface
 export interface ZstdModule {
-  // Optimized compression functions (preferred)
+  // High-performance optimized functions
+  _zstd_compress_buffer_optimized?(
+    input: number,
+    inputLen: number,
+    output: number,
+    outputLen: number,
+    compressionLevel: number
+  ): number
+  
+  _zstd_decompress_buffer_optimized?(
+    input: number,
+    inputLen: number,
+    output: number,
+    outputLen: number
+  ): number
+
+  _zstd_compress_fast?(input: number, inputLen: number, output: number, outputLen: number): number
+  _zstd_decompress_fast?(input: number, inputLen: number, output: number, outputLen: number): number
+  _zstd_compress_batch?(inputs: number, inputLens: number, numInputs: number, outputs: number, outputLens: number, level: number): number
+  _zstd_get_optimization_info?(): number
+
+  // Standard optimized functions  
   _zstd_compress_optimized?(
     input: number,
     inputLen: number,
