@@ -41,13 +41,11 @@ buck-out/
 build-*
 *.gcda
 
-# WASM-specific build artifacts
-dist/browser-simd/
-dist/browser-fallback/
-dist/browser-es6/
-dist/node/
+# WASM and TypeScript build artifacts
+dist/
 build/
 wasm/
+*.js.map
 
 # Node.js dependencies
 node_modules/
@@ -83,6 +81,8 @@ coverage/
 .nyc_output
 test-results/
 playwright-report/
+.vitest/
+*.lcov
 
 # Other files
 .directory

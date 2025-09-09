@@ -161,28 +161,24 @@ static uint32_t simd_xxhash32(const void* input, size_t len, uint32_t seed) {
         do {
             v128_t input_vec = wasm_v128_load(data);
             
-            // Split into 4 32-bit lanes and process
-            v128_t lane1 = wasm_i32x4_extract_lane(input_vec, 0);
-            v128_t lane2 = wasm_i32x4_extract_lane(input_vec, 1);
-            v128_t lane3 = wasm_i32x4_extract_lane(input_vec, 2);
-            v128_t lane4 = wasm_i32x4_extract_lane(input_vec, 3);
+            // Process with working SIMD operations
+            v128_t multiplied = wasm_i32x4_mul(input_vec, prime2);
+            acc1 = wasm_i32x4_add(acc1, multiplied);
             
-            // XXHash round function equivalent with SIMD
-            acc1 = wasm_i32x4_add(acc1, wasm_i32x4_mul(lane1, prime2));
-            acc1 = wasm_i32x4_or(wasm_i32x4_shl(acc1, 13), wasm_i32x4_shr_u(acc1, 19));
-            acc1 = wasm_i32x4_mul(acc1, prime1);
+            // Use individual lane processing for complex operations
+            uint32_t lane0 = wasm_i32x4_extract_lane(acc1, 0);
+            uint32_t lane1 = wasm_i32x4_extract_lane(acc1, 1);
+            uint32_t lane2 = wasm_i32x4_extract_lane(acc1, 2);
+            uint32_t lane3 = wasm_i32x4_extract_lane(acc1, 3);
             
-            acc2 = wasm_i32x4_add(acc2, wasm_i32x4_mul(lane2, prime2));
-            acc2 = wasm_i32x4_or(wasm_i32x4_shl(acc2, 13), wasm_i32x4_shr_u(acc2, 19));
-            acc2 = wasm_i32x4_mul(acc2, prime1);
+            // Apply rotation and multiplication
+            lane0 = ((lane0 << 13) | (lane0 >> 19)) * PRIME32_1;
+            lane1 = ((lane1 << 13) | (lane1 >> 19)) * PRIME32_1;
+            lane2 = ((lane2 << 13) | (lane2 >> 19)) * PRIME32_1;
+            lane3 = ((lane3 << 13) | (lane3 >> 19)) * PRIME32_1;
             
-            acc3 = wasm_i32x4_add(acc3, wasm_i32x4_mul(lane3, prime2));
-            acc3 = wasm_i32x4_or(wasm_i32x4_shl(acc3, 13), wasm_i32x4_shr_u(acc3, 19));
-            acc3 = wasm_i32x4_mul(acc3, prime1);
-            
-            acc4 = wasm_i32x4_add(acc4, wasm_i32x4_mul(lane4, prime2));
-            acc4 = wasm_i32x4_or(wasm_i32x4_shl(acc4, 13), wasm_i32x4_shr_u(acc4, 19));
-            acc4 = wasm_i32x4_mul(acc4, prime1);
+            // Reconstruct vector
+            acc1 = wasm_i32x4_make(lane0, lane1, lane2, lane3);
             
             data += 16;
         } while (data <= limit);
@@ -395,4 +391,41 @@ double zstd_benchmark_memory_ops(int buffer_size, int iterations) {
     double total_time = (end_time - start_time) / 1000.0;
     double total_bytes = (double)buffer_size * iterations;
     return (total_bytes / total_time) / (1024.0 * 1024.0);
+}
+
+// TypeScript API wrapper functions for compatibility
+EMSCRIPTEN_KEEPALIVE
+int zstd_compress_optimized(const char* input, int input_len, char* output, unsigned int* output_len, int compression_level) {
+    return zstd_compress_buffer(input, input_len, output, output_len, compression_level);
+}
+
+EMSCRIPTEN_KEEPALIVE
+int zstd_decompress_optimized(const char* input, int input_len, char* output, unsigned int* output_len) {
+    return zstd_decompress_buffer(input, input_len, output, output_len);
+}
+
+EMSCRIPTEN_KEEPALIVE
+unsigned int zstd_compress_bound_optimized(unsigned int source_len) {
+    return zstd_compress_bound(source_len);
+}
+
+EMSCRIPTEN_KEEPALIVE
+const char* zstd_get_version_optimized(void) {
+    return zstd_get_version();
+}
+
+EMSCRIPTEN_KEEPALIVE
+const char* zstd_get_error_name_optimized(int error_code) {
+    return zstd_error_string(error_code);
+}
+
+// Standard API aliases for compatibility
+EMSCRIPTEN_KEEPALIVE
+int zstd_compress(const char* input, int input_len, char* output, unsigned int* output_len, int compression_level) {
+    return zstd_compress_buffer(input, input_len, output, output_len, compression_level);
+}
+
+EMSCRIPTEN_KEEPALIVE
+int zstd_decompress(const char* input, int input_len, char* output, unsigned int* output_len) {
+    return zstd_decompress_buffer(input, input_len, output, output_len);
 }

@@ -66,3 +66,45 @@ EMSCRIPTEN_KEEPALIVE
 unsigned long long zstd_get_decompressed_size(const char* input, int input_len) {
     return ZSTD_getFrameContentSize(input, input_len);
 }
+
+// TypeScript API wrapper functions for compatibility
+EMSCRIPTEN_KEEPALIVE
+int zstd_compress_optimized(const char* input, int input_len, char* output, unsigned int* output_len, int compression_level) {
+    return zstd_compress_buffer(input, input_len, output, output_len, compression_level);
+}
+
+EMSCRIPTEN_KEEPALIVE
+int zstd_decompress_optimized(const char* input, int input_len, char* output, unsigned int* output_len) {
+    return zstd_decompress_buffer(input, input_len, output, output_len);
+}
+
+EMSCRIPTEN_KEEPALIVE
+unsigned int zstd_compress_bound_optimized(unsigned int source_len) {
+    return zstd_compress_bound(source_len);
+}
+
+EMSCRIPTEN_KEEPALIVE
+const char* zstd_get_version_optimized(void) {
+    return zstd_get_version();
+}
+
+EMSCRIPTEN_KEEPALIVE
+const char* zstd_get_error_name_optimized(int error_code) {
+    return zstd_error_string(error_code);
+}
+
+// Standard API aliases
+EMSCRIPTEN_KEEPALIVE
+int zstd_compress(const char* input, int input_len, char* output, unsigned int* output_len, int compression_level) {
+    return zstd_compress_buffer(input, input_len, output, output_len, compression_level);
+}
+
+EMSCRIPTEN_KEEPALIVE
+int zstd_decompress(const char* input, int input_len, char* output, unsigned int* output_len) {
+    return zstd_decompress_buffer(input, input_len, output, output_len);
+}
+
+EMSCRIPTEN_KEEPALIVE
+const char* zstd_get_error_name(int error_code) {
+    return zstd_error_string(error_code);
+}
