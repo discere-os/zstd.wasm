@@ -1,10 +1,12 @@
-# @superstruct/zstd.wasm
+# @discere-os/zstd.wasm
 
-**High-performance Zstandard compression compiled to WebAssembly**
+WebAssembly port of Zstandard - High-performance compression algorithm with fast entropy coding and excellent compression ratios.
 
-<p align="center"><img src="https://raw.githubusercontent.com/facebook/zstd/dev/doc/images/zstd_logo86.png" alt="Zstandard" width="200"></p>
-
-A faithful fork of the original **Zstandard** (`zstd`) algorithm enhanced with SIMD optimizations and modern TypeScript interfaces. Maintains 100% compatibility with the Zstandard format while delivering exceptional performance for web and Node.js applications.
+[![CI/CD](https://github.com/discere-os/discere-nucleus/actions/workflows/zstd-wasm-ci.yml/badge.svg)](https://github.com/discere-os/discere-nucleus/actions)
+[![JSR](https://jsr.io/badges/@discere-os/zstd.wasm)](https://jsr.io/@discere-os/zstd.wasm)
+[![npm version](https://badge.fury.io/js/@discere-os%2Fzstd.wasm.svg)](https://badge.fury.io/js/@discere-os%2Fzstd.wasm)
+[![License](https://img.shields.io/badge/License-BSD-blue.svg)](LICENSE)
+[![Status](https://img.shields.io/badge/status-alpha-orange.svg)](https://github.com/discere-os/discere-nucleus)
 
 ### About Zstandard
 
